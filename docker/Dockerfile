@@ -1,13 +1,20 @@
-FROM ubuntu_2204
-RUN echo "Installing apt packages..."
+# syntax=docker/dockerfile:1
 
-RUN sudo apt-get -y update >> packages.log
-RUN sudo apt-get -y install gawk libssl-dev sshpass libpng-dev libudunits2-dev libcairo2-dev libgdal-dev r-base r-base-dev pandoc python3 python-is-python3 >> packages.log
+FROM debian:trixie-slim
 
-RUN export RSTUDIO_PANDOC=/usr/bin/
+ENV DEBIAN_FRONTEND=noninteractive
+ENV GNUMAKEFLAGS="-j2 --no-print-directory --output-sync=target"
+ENV MAKEFLAGS="-j2 --no-print-directory --output-sync=target"
 ENV RSTUDIO_PANDOC=/usr/bin
+ENV TZ=Europe/Berlin
 
-RUN echo "Installing R packages..."
-## mapview not needed anymore
-COPY Rpackages.R Rpackages.R
-RUN sudo Rscript --vanilla Rpackages.R
+SHELL ["/bin/bash", "-Eeuxo", "pipefail", "-c"]
+
+COPY docker_scripts /docker_scripts
+
+# Disable compiler warnings when R compiles packages from source.
+ENV EXTRA_CXXFLAGS=-w
+COPY config/Makevars /root/.R/Makevars
+
+RUN /docker_scripts/install_apt_packages.sh
+RUN /docker_scripts/install_R_packages.R
