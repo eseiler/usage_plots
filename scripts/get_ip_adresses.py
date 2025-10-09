@@ -1,68 +1,37 @@
 import os
 import sys
 import re
-
-sys.path.insert(0, './IP2Location-Python/') # add submodule package locally
-sys.path.insert(0, './scripts/IP2Location-Python/') # add submodule package locally
-
 import IP2Location
 
 # Import database
 database = IP2Location.IP2Location(sys.argv[3])
 
-# open files
-ips_file = open(sys.argv[1], "r")
-geo_locations_file = open(sys.argv[2], "w")
+with open(sys.argv[2], "w") as geo_locations_file:
+    ip_pattern = re.compile(r"^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$")
+    sep = "\t"
 
-# Global variables
-ip_pattern = re.compile("^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$")
+    # ---------------------------------------- process ips ---------------------------------------------
+    # write header line
+    geo_locations_file.write(f"ip{sep}country_code{sep}country{sep}region{sep}city{sep}longitude{sep}latitude\n")
 
-ouput_file_seperator="\t"
+    # fill rest of geolocations file
+    with open(sys.argv[1], "r") as ip_file:
+        for line in ip_file:
+            ip = line.strip()
 
-# ---------------------------------------- process ips --------------------------------------------- 
-# write header line
-geo_locations_file.write("ip")
-geo_locations_file.write(ouput_file_seperator)
-geo_locations_file.write("country_code")
-geo_locations_file.write(ouput_file_seperator)
-geo_locations_file.write("country")
-geo_locations_file.write(ouput_file_seperator)
-geo_locations_file.write("region")
-geo_locations_file.write(ouput_file_seperator)
-geo_locations_file.write("city")
-geo_locations_file.write(ouput_file_seperator)
-geo_locations_file.write("longitude")
-geo_locations_file.write(ouput_file_seperator)
-geo_locations_file.write("latitude")
-geo_locations_file.write("\n")
+            # validate ip address
+            if not (re.search(ip_pattern, ip)):
+                print(f"--- get_ip_adress.py # Error: Skipping non-valid ip adress: {ip}")
+                continue
 
-# fill rest of geolocations file
-for ip in ips_file:
-	# test if ip is a valid string to avoid errors
-	if not (re.search(ip_pattern, ip.strip())):
-		print "--- get_ip_adress.py # Error: Skipping non-valid ip adress:",ip.strip()
-		continue
+            geo_locations_file.write(f"{ip}{sep}") # write before database access for debug information
 
-	geo_locations_file.write(ip.strip()) # write before database access for debug information
-        
-	rec = database.get_all(ip.strip())
-	
-	# write all data base information
-	geo_locations_file.write(ouput_file_seperator)
-        geo_locations_file.write(rec.country_short)
-	geo_locations_file.write(ouput_file_seperator)
-        geo_locations_file.write(rec.country_long)
-        geo_locations_file.write(ouput_file_seperator)
-	geo_locations_file.write(rec.region)
-	geo_locations_file.write(ouput_file_seperator)
-        geo_locations_file.write(rec.city)
-	geo_locations_file.write(ouput_file_seperator)
-        geo_locations_file.write(str(rec.longitude))
-	geo_locations_file.write(ouput_file_seperator)
-        geo_locations_file.write(str(rec.latitude))
-	geo_locations_file.write("\n")
+            rec = database.get_all(ip)
 
-ips_file.close()
-geo_locations_file.close()
+            # write all data base information
+            geo_locations_file.write(
+                f"{rec.country_short}{sep}{rec.country_long}{sep}{rec.region}{sep}"
+                f"{rec.city}{sep}{str(rec.longitude)}{sep}{str(rec.latitude)}\n"
+            )
 
-print "--- get_ip_adress.py # Done."
+print("--- get_ip_adresses.py # Done.")

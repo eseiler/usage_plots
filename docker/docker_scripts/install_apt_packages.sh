@@ -17,6 +17,7 @@ apt-get install --yes --no-install-recommends \
     pandoc \
     python-is-python3 \
     python3 \
+    python3-pip \
     r-base \
     r-base-dev \
     sshpass \
