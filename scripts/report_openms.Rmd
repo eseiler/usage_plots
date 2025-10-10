@@ -79,13 +79,13 @@ cit <- get_citation_history('tQ26gxIAAAAJ')
 
 ggplot(cit,aes(x=year,y=cites))+
   geom_bar(stat='identity')+
-  scale_x_continuous(breaks=2006:2020,
-                     labels=c("2006","2007","2008","2009","2010","2011","2012","2013","2014","2015","2016","2017","2018","2019","2020"))+
+  scale_x_continuous(breaks=2006:2025,
+                     labels=c("2006","2007","2008","2009","2010","2011","2012","2013","2014","2015","2016","2017","2018","2019","2020","2021","2022","2023","2024","2025"))+
   theme_bw()+
   xlab('Year of citation')+
   ylab('Google Scholar\n cites')+
   annotate('text',label=format(Sys.time(), "%Y-%m-%d %H:%M:%S %Z"),x=-Inf,y=Inf,vjust=1.5,hjust=-0.05,size=3,colour='grey')
-  
+
 dev.copy(png, paste(output_dir, "/scholar_citations_openms_tQ26gxIAAAAJ_",
                      MAX_DATE, ".png", sep = ""))
 dev.off()
@@ -111,7 +111,7 @@ Statistics from <http://github.com/OpenMS/OpenMS> from `r startDate` to `r endDa
 
 ### Pull Requests
   [![Github PRs merged](`r paste("https://img.shields.io/badge/dynamic/json.svg?label=Pull%20requests%20merged&url=",baseURL,"%2Btype%3Apr%2Bmerged%3A",startDate,"..",endDate,"&query=%24.total_count&colorB=brightgreen",sep="")`)](https://github.com/OpenMS/OpenMS/pull)
-  
+
   [![Github PRs opened](`r paste("https://img.shields.io/badge/dynamic/json.svg?label=Pull%20requests%20opened&url=",baseURL,"%2Btype%3Apr%2Bcreated%3A",startDate,"..",endDate,"&query=%24.total_count&colorB=red",sep="")`)](https://github.com/OpenMS/OpenMS/pull)
 
 ### Downloads
@@ -144,8 +144,9 @@ plot_data_long <- gather(plot_data_wide_cumsum, DevelopedBy, calls, levels(plot_
 
 ggplot(plot_data_long, aes(x=date, y=calls)) +
   geom_area(aes(colour=DevelopedBy, fill=DevelopedBy), colour="black", size=.2, alpha=.7) +
-  scale_x_date(date_labels = "%b %Y", date_breaks = "1 months") +
+  scale_x_date(limits = c(as.Date("2019-11-01"), NA), oob = scales::oob_keep, date_labels = "%b %Y", minor_breaks = "1 months", date_breaks = "6 months") +
   theme(axis.text.x = element_text(angle = 25, vjust = 1.0, hjust = 1.0)) +
+  scale_y_continuous(name="Calls", labels = scales::comma) +
   labs(title= "Number of calls of OpenMS tools", fill = "Developed by:", x = "Month", y = "Calls")
 
 dev.copy(png, paste(output_dir, "/total_cumulative_sum_of_usages_",

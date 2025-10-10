@@ -1,4 +1,5 @@
 #!/usr/bin/env Rscript
 
-install.packages(c('ggplot2','scholar','knitr','rmarkdown','leaflet','rworldmap','lattice','RColorBrewer','sp'), repos='https://cloud.r-project.org/')
+libraries <- c('ggplot2', 'knitr', 'lattice', 'leaflet', 'RColorBrewer', 'rmarkdown', 'rworldmap', 'scholar', 'sp', 'tidyr', 'yaml')
+install.packages(libraries, repos='https://cloud.r-project.org/')
 q()

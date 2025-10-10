@@ -1,52 +1,21 @@
 ## @knitr global_file
-if(!require(leaflet)) {
-        install.packages('leaflet', repos = c('http://rforge.net', 'http://cran.rstudio.org'), type = 'source', lib=local.lib)
-        library(leaflet, lib.loc=local.lib)
-}
 
-if(!require(tidyr)) {
-        install.packages('tidyr', repos = c('http://rforge.net', 'http://cran.rstudio.org'), type = 'source', lib=local.lib)
-        library(tidyr, lib.loc=local.lib)
-}
-
-if(!require(ggplot2)) {
-        install.packages('ggplot2', repos = c('http://rforge.net', 'http://cran.rstudio.org'), type = 'source', lib=local.lib)
-        library(ggplot2, lib.loc=local.lib)
-}
-
-if(!require(scholar)) {
-	install.packages('scholar', repos = c('http://rforge.net', 'http://cran.rstudio.org'), type = 'source', lib=local.lib)
-       	library(scholar, lib.loc=local.lib)
-}
-
-if(!require(lattice)) {
-        install.packages('lattice', repos = c('http://rforge.net', 'http://cran.rstudio.org'), type = 'source', lib=local.lib)
-        library(lattice, lib.loc=local.lib)
-}
-
-if(!require(rworldmap)) {
-        install.packages('rworldmap', repos = c('http://rforge.net', 'http://cran.rstudio.org'), type = 'source', lib=local.lib)
-        library(rworldmap, lib.loc=local.lib)
-}
-
-if(!require(RColorBrewer)) {
-        install.packages('RColorBrewer', repos = c('http://rforge.net', 'http://cran.rstudio.org'), type = 'source', lib=local.lib)
-        library(RColorBrewer, lib.loc=local.lib)
-}
+libraries <- c('ggplot2', 'knitr', 'lattice', 'leaflet', 'RColorBrewer', 'rmarkdown', 'rworldmap', 'scholar', 'sp', 'tidyr', 'yaml')
+lapply(libraries, library, character.only = TRUE)
 
 # global:
-seqan_apps <- c("alf"     ,"bisar"   ,"casbar"  ,"four2three"      ,"dfi"     ,"compute_gain"    ,"fiona"   ,
-	            "fiona_illumina"  ,"fx_bam_coverage" ,"fx_fastq_stats"  ,"gustaf"  ,"gustaf_mate_joining"     ,
-	            "insegt"  ,"mason_genome"    ,"mason_methylation"       ,"mason_frag_sequencing"   ,
-	            "mason_variator"  ,"mason_materializer"      ,"mason_simulator" ,"mason_splicing"  ,
-	            "mason_tests"     ,"micro_razers"    ,"roi_plot_thumbnails"     ,"bam2roi" ,
-	            "roi_feature_projection"  ,"pair_align"      ,"param_chooser"   ,"test_funcs_param_chooser",
-	            "rabema_prepare_sam"      ,"rabema_build_gold_standard"      ,"rabema_evaluate" ,
-	            "rabema_do_search"        ,"razers"  ,"razers3" ,"razers3_compPHSens"      ,
-	            "razers3_simulate_reads"  ,"razers3_quality2prob"    ,"rep_sep" ,"sak"     ,
-	            "sam2matrix"      ,"samcat"  ,"s4_search"       ,"s4_join" ,"seqan_tcoffee" ,"seqcons2",
-	            "sgip"    ,"snp_store"       ,"splazers"        ,"stellar","tree_recon"      ,"yara_indexer"  ,
-	            "yara_mapper")
+# seqan_apps <- c("alf"     ,"bisar"   ,"casbar"  ,"four2three"      ,"dfi"     ,"compute_gain"    ,"fiona"   ,
+#                 "fiona_illumina"  ,"fx_bam_coverage" ,"fx_fastq_stats"  ,"gustaf"  ,"gustaf_mate_joining"     ,
+#                 "insegt"  ,"mason_genome"    ,"mason_methylation"       ,"mason_frag_sequencing"   ,
+#                 "mason_variator"  ,"mason_materializer"      ,"mason_simulator" ,"mason_splicing"  ,
+#                 "mason_tests"     ,"micro_razers"    ,"roi_plot_thumbnails"     ,"bam2roi" ,
+#                 "roi_feature_projection"  ,"pair_align"      ,"param_chooser"   ,"test_funcs_param_chooser",
+#                 "rabema_prepare_sam"      ,"rabema_build_gold_standard"      ,"rabema_evaluate" ,
+#                 "rabema_do_search"        ,"razers"  ,"razers3" ,"razers3_compPHSens"      ,
+#                 "razers3_simulate_reads"  ,"razers3_quality2prob"    ,"rep_sep" ,"sak"     ,
+#                 "sam2matrix"      ,"samcat"  ,"s4_search"       ,"s4_join" ,"seqan_tcoffee" ,"seqcons2",
+#                 "sgip"    ,"snp_store"       ,"splazers"        ,"stellar","tree_recon"      ,"yara_indexer"  ,
+#                 "yara_mapper")
 
 ###############################################################################
 #                               Prepare logdata
@@ -91,15 +60,15 @@ global_logdata <- merge(log_data_new, geolocations, by="ip")
 ## Add tooltags if present
 if (exists("tooltag_file_name"))
 {
-	tool_tags <- read.table(tooltag_file_name, sep = "\t",
-	                        fill = T, header = T, quote = "",
-	                        stringsAsFactors = F)
-	global_logdata <- merge(global_logdata, tool_tags, by.x="app", by.y="Tool", all.x=T)
+    tool_tags <- read.table(tooltag_file_name, sep = "\t",
+                            fill = T, header = T, quote = "",
+                            stringsAsFactors = F)
+    global_logdata <- merge(global_logdata, tool_tags, by.x="app", by.y="Tool", all.x=T)
   ## If not DevelopedBy tag registered, assume "external" tool
-	global_logdata[is.na(global_logdata[,"DevelopedBy"]),"DevelopedBy"] = "extern"
+    global_logdata[is.na(global_logdata[,"DevelopedBy"]),"DevelopedBy"] = "extern"
 } else {
   ## If no tooltags present, use only one category
-	global_logdata$DevelopedBy = "any"
+    global_logdata$DevelopedBy = "any"
 }
 
 
@@ -155,82 +124,82 @@ global_logdata <- global_logdata[complete.cases(global_logdata),]
 
 prepare_data_for_worldmap <- function(mapdata)
 {
-	# ------------------------- add html text for info popup ------------------
-	mapdata_aggr_by_pos <- aggregate(mapdata$calls, list(mapdata$latitude,
-	                                                     mapdata$longitude,
-	                                                     mapdata$country,
-	                                                     mapdata$city), sum)
-	mapdata_aggr_by_app <- aggregate(mapdata$calls, list(mapdata$latitude,
-	                                                     mapdata$longitude,
-	                                                     mapdata$app), sum)
-	colnames(mapdata_aggr_by_pos) <- c("lat", "lng", "country", "city", "radius_size")
-	colnames(mapdata_aggr_by_app) <- c("lat", "lng", "app", "calls")
-	mapdata_aggr_by_pos <- mapdata_aggr_by_pos[order(mapdata_aggr_by_pos$lat),]
-	mapdata_aggr_by_app <- mapdata_aggr_by_app[order(mapdata_aggr_by_app$lat),]
+    # ------------------------- add html text for info popup ------------------
+    mapdata_aggr_by_pos <- aggregate(mapdata$calls, list(mapdata$latitude,
+                                                         mapdata$longitude,
+                                                         mapdata$country,
+                                                         mapdata$city), sum)
+    mapdata_aggr_by_app <- aggregate(mapdata$calls, list(mapdata$latitude,
+                                                         mapdata$longitude,
+                                                         mapdata$app), sum)
+    colnames(mapdata_aggr_by_pos) <- c("lat", "lng", "country", "city", "radius_size")
+    colnames(mapdata_aggr_by_app) <- c("lat", "lng", "app", "calls")
+    mapdata_aggr_by_pos <- mapdata_aggr_by_pos[order(mapdata_aggr_by_pos$lat),]
+    mapdata_aggr_by_app <- mapdata_aggr_by_app[order(mapdata_aggr_by_app$lat),]
 
-	n <- nrow(mapdata_aggr_by_pos)
+    n <- nrow(mapdata_aggr_by_pos)
 
-	mapdata_aggr_by_pos["infotext"] <- rep(",", n) # initialize
-	j <- 1 # keeps mapdata_aggr_by_pos and mapdata_aggr_by_app synchronized
-	for ( i in seq(1, n) ){ # for every location
+    mapdata_aggr_by_pos["infotext"] <- rep(",", n) # initialize
+    j <- 1 # keeps mapdata_aggr_by_pos and mapdata_aggr_by_app synchronized
+    for ( i in seq(1, n) ){ # for every location
 
-	  #determine number of apps num_apps for location i
-	  curr_apps <- which(mapdata_aggr_by_app$lat == mapdata_aggr_by_pos$lat[i])
-	  num_apps <- length(curr_apps)
+      #determine number of apps num_apps for location i
+      curr_apps <- which(mapdata_aggr_by_app$lat == mapdata_aggr_by_pos$lat[i])
+      num_apps <- length(curr_apps)
 
-	  # append city name and (country)
-	  content <- c('<table style="width:100%">',
-	               '<tr>',
-	               '<th></th>',
-	               '<th>', mapdata_aggr_by_pos$city[i], ' (',
-	               mapdata_aggr_by_pos$country[i], ')</th>',
-	               '</tr>')
-	  #append 'Expand...' if needed
-	  if (num_apps -5 > 0){
-	    content <- c(content,'<tr>', '<td></td>',
-	                 '<td style="text-align:right;"><a href="#all_apps" data-toggle="collapse">Expand...</a></td>',
-	                 '</tr>')
-	  }
+      # append city name and (country)
+      content <- c('<table style="width:100%">',
+                   '<tr>',
+                   '<th></th>',
+                   '<th>', mapdata_aggr_by_pos$city[i], ' (',
+                   mapdata_aggr_by_pos$country[i], ')</th>',
+                   '</tr>')
+      #append 'Expand...' if needed
+      if (num_apps -5 > 0){
+        content <- c(content,'<tr>', '<td></td>',
+                     '<td style="text-align:right;"><a href="#all_apps" data-toggle="collapse">Expand...</a></td>',
+                     '</tr>')
+      }
 
-	  # append first 5 apps
-	  for (a in curr_apps[1:min(5, num_apps)]){
-	    content <- c(content, '<tr>',
-	                 '<td style="padding: 0px 10px 0px 0px">',
-	                 mapdata_aggr_by_app$calls[a], '</td>',
-	                 '<td>', mapdata_aggr_by_app$app[a],'</td>',
-	                 '</tr>'
-	    )
-	  }
+      # append first 5 apps
+      for (a in curr_apps[1:min(5, num_apps)]){
+        content <- c(content, '<tr>',
+                     '<td style="padding: 0px 10px 0px 0px">',
+                     mapdata_aggr_by_app$calls[a], '</td>',
+                     '<td>', mapdata_aggr_by_app$app[a],'</td>',
+                     '</tr>'
+        )
+      }
 
-	  # append last ones as expand panel
-	  if (num_apps -5 > 0){
-	    content <- c(content, '</table><table id=all_apps class="collapse" style="width:100%">')
-	    for (a in curr_apps[1:(num_apps - 5)]){
-	      content <- c(content, '<tr>',
-	                   '<td style="padding:0px 10px 0px 0px">',
-	                   mapdata_aggr_by_app$calls[a], '</td>',
-	                   '<td>', mapdata_aggr_by_app$app[a],'</td>',
-	                   '</tr>'
-	      )
-	    }
-	  }
+      # append last ones as expand panel
+      if (num_apps -5 > 0){
+        content <- c(content, '</table><table id=all_apps class="collapse" style="width:100%">')
+        for (a in curr_apps[1:(num_apps - 5)]){
+          content <- c(content, '<tr>',
+                       '<td style="padding:0px 10px 0px 0px">',
+                       mapdata_aggr_by_app$calls[a], '</td>',
+                       '<td>', mapdata_aggr_by_app$app[a],'</td>',
+                       '</tr>'
+          )
+        }
+      }
 
-	  content <- c(content, "</table>")
-	  mapdata_aggr_by_pos$infotext[i] <- paste(content, collapse = "")
-	  j <- j + num_apps
-	}
+      content <- c(content, "</table>")
+      mapdata_aggr_by_pos$infotext[i] <- paste(content, collapse = "")
+      j <- j + num_apps
+    }
 
-	# ------------------------- manipulate radius size ------------------
+    # ------------------------- manipulate radius size ------------------
 
-	# +1 pseudocounts, take log for scaling outliers
-	mapdata_aggr_by_pos$radius_size <- log(mapdata_aggr_by_pos$radius_size + 1)
+    # +1 pseudocounts, take log for scaling outliers
+    mapdata_aggr_by_pos$radius_size <- log(mapdata_aggr_by_pos$radius_size + 1)
     max_calls <- max(mapdata_aggr_by_pos$radius_size)
     max_radius <- 20
 
     # scale radius so the circles do not get too big
     mapdata_aggr_by_pos$radius_size <- mapdata_aggr_by_pos$radius_size * max_radius / max_calls
 
-	return(mapdata_aggr_by_pos)
+    return(mapdata_aggr_by_pos)
 }
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -337,7 +306,7 @@ total_ips_per_month <- function(data)
 # brief: pie chart for operating system (OS)
 
 # input:
-#   data_to_plot	data.frame	a data frame containing the columns ip and os
+#   data_to_plot    data.frame    a data frame containing the columns ip and os
 pieChart.OS.users <- function(data_to_plot)
 {
     t <- table(unique(data_to_plot[, c("ip","os")])[,2])
@@ -348,7 +317,7 @@ pieChart.OS.users <- function(data_to_plot)
 }
 
 # input:
-#   data_to_plot	data.frame	a data frame containing the column os
+#   data_to_plot    data.frame    a data frame containing the column os
 pieChart.OS.calls <- function(data_to_plot)
 {
     t <-table(data_to_plot$os)
@@ -366,9 +335,9 @@ pieChart.OS.calls <- function(data_to_plot)
 #        the highest number of calls/users
 
 # input:
-#   data_to_plot	data.frame	a daggregated dataframe with one column containing the numbers
-#	clustered 		bool		indicates whether to differentiate between cluster uses
-#	mytitle			string 		title used for the plot
+#   data_to_plot    data.frame    a daggregated dataframe with one column containing the numbers
+#    clustered         bool        indicates whether to differentiate between cluster uses
+#    mytitle            string         title used for the plot
 barPlot.Top10Apps <- function(data_to_plot, clustered, agg_type)
 {
     plot_legend <- c(agg_type)
@@ -398,17 +367,17 @@ barPlot.Top10Apps <- function(data_to_plot, clustered, agg_type)
 
     scale <- 1500/max(data_to_plot[,1])
     text(x = data_to_plot[,1]-scale, y = seq(0.9, 1.5*nrow(data_to_plot), by=1.5),
-    	 label = data_to_plot[,1], pos = 2, offset=0.1, cex = 0.7, col = "black")
+         label = data_to_plot[,1], pos = 2, offset=0.1, cex = 0.7, col = "black")
     if (clustered)
     {
-    	text(x = data_to_plot[,1]+scale, y = seq(0.9, 1.5*nrow(data_to_plot), by=1.5),
-    		 label = data_to_plot[,2], pos = 4, offset=0.05,cex = 0.7, col = "white")
+        text(x = data_to_plot[,1]+scale, y = seq(0.9, 1.5*nrow(data_to_plot), by=1.5),
+             label = data_to_plot[,2], pos = 4, offset=0.05,cex = 0.7, col = "white")
     }
 }
 
 # input:
-#   data_to_plot	data.frame	a data frame containing the columns calls and app
-#	clustered 		bool		indicates whether to differentiate between cluster uses
+#   data_to_plot    data.frame    a data frame containing the columns calls and app
+#    clustered         bool        indicates whether to differentiate between cluster uses
 barPlot.Top10Apps.calls <- function(data_to_plot, clustered)
 {
     agg.data <- data.frame(aggregate(data_to_plot$calls, list(data_to_plot$app), sum), row.names = 1)
@@ -417,8 +386,8 @@ barPlot.Top10Apps.calls <- function(data_to_plot, clustered)
 }
 
 # input:
-#   data_to_plot	data.frame	a data frame containing the columns calls and app
-#	clustered 		bool		indicates whether to differentiate between cluster uses
+#   data_to_plot    data.frame    a data frame containing the columns calls and app
+#    clustered         bool        indicates whether to differentiate between cluster uses
 barPlot.Top10Apps.users <- function(data_to_plot, clustered)
 {
     data_to_plot <- unique(data_to_plot[,c("ip","app")])
@@ -434,15 +403,15 @@ barPlot.Top10Apps.users <- function(data_to_plot, clustered)
 # brief: plots a world map and adds circles, sized by the number of app calls, to it
 
 # input:
-#	mapdata 	data.frame	a data frame containing columns app, longitude,
+#    mapdata     data.frame    a data frame containing columns app, longitude,
 #                           latidude, country, city, infotext and radius_size
 #                           (obtained by prepare_data_for_worldmap())
 plotWorldmap <- function(mapdata)
 {
-	return(leaflet(mapdata, width = "100%") %>% addTiles() %>% addCircleMarkers(~lng, ~lat,
-	                                                            radius = ~radius_size,
-	                                                            color = "blue",
-	                                                            fill = T,
-	                                                            popup = ~infotext))
+    return(leaflet(mapdata, width = "100%") %>% addTiles() %>% addCircleMarkers(~lng, ~lat,
+                                                                radius = ~radius_size,
+                                                                color = "blue",
+                                                                fill = T,
+                                                                popup = ~infotext))
 }
 

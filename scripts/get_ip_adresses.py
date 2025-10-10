@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import os
 import sys
 import re
@@ -16,12 +18,12 @@ with open(sys.argv[2], "w") as geo_locations_file:
 
     # fill rest of geolocations file
     with open(sys.argv[1], "r") as ip_file:
-        for line in ip_file:
+        for number, line in enumerate(ip_file):
             ip = line.strip()
 
             # validate ip address
             if not (re.search(ip_pattern, ip)):
-                print(f"--- get_ip_adress.py # Error: Skipping non-valid ip adress: {ip}")
+                print(f"--- [get_ip_adress.py] Warning: Skipping non-valid ip adress on line {number}: {ip}")
                 continue
 
             geo_locations_file.write(f"{ip}{sep}") # write before database access for debug information
@@ -34,4 +36,4 @@ with open(sys.argv[2], "w") as geo_locations_file:
                 f"{rec.city}{sep}{str(rec.longitude)}{sep}{str(rec.latitude)}\n"
             )
 
-print("--- get_ip_adresses.py # Done.")
+print("--- [get_ip_adresses.py] Done.")

@@ -1,6 +1,4 @@
-## TODO try to use the same library as the other scripts from svenja
 ## TODO integrate into report
-install.packages("scholar")
 library(scholar)
 library(ggplot2)
 
